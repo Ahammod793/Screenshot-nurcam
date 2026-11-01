@@ -1,0 +1,2 @@
+/* The native OS window picker replaces HWND enumeration/window hit testing. */
+document.querySelector("#choose").addEventListener("click",()=>{sessionStorage.setItem("nurcam-window-selection","true");location.href="MainWindow.html";document.querySelector("#status").textContent="Choose a window in the native picker when capture starts.";});

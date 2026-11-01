@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NurCam Screenshot Studio</title><link rel="stylesheet" href="MainWindow.css"></head>
+<body><main class="shell">
+<header><h1>NurCam Screenshot Studio</h1><p>Capture your screen, edit the image, and save it locally.</p></header>
+<section class="settings"><label>Capture delay <select id="delay"><option value="0">No delay</option><option value="3">3 seconds</option><option value="5">5 seconds</option><option value="10">10 seconds</option></select></label><label class="check"><input id="autosave" type="checkbox"> Auto-save to Pictures/NurCam</label></section>
+<section class="columns"><div><h2>SCREEN CAPTURE</h2>
+<button data-capture="full">Capture Full Screen</button><button data-capture="region">Capture a Region</button><button data-capture="active">Capture Active Window</button><button data-capture="select">Select a Window</button>
+</div><aside><h3>Image editor included</h3><p>Every capture opens in the editor before saving. Crop, annotate, blur sensitive details, pixelate information, undo changes, copy, or save.</p><strong>Formats: PNG and JPEG</strong></aside></section>
+<footer>Local processing • No upload • Browser extension</footer><p id="status" role="status"></p></main><script src="MainWindow.js"></script></body></html>

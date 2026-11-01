@@ -1,0 +1,12 @@
+/* NativeImageEditor.cs + image_editor.rs port.
+   The original engine operates on tightly packed 32-bit pixels. Canvas ImageData is RGBA;
+   the three color channels are processed independently with identical arithmetic. */
+const NurCamImageEditor=(()=>{
+ const MAX_IMAGE_BYTES=512*1024*1024;
+ function valid(imageData){const {width:w,height:h,data}=imageData;if(!w||!h||w*h*4!==data.length||data.length>MAX_IMAGE_BYTES)throw new Error("Invalid image dimensions or image exceeds the 512 MiB editor memory limit.");}
+ function crop(imageData,x,y,width,height){valid(imageData);if(!Number.isInteger(x)||!Number.isInteger(y)||!Number.isInteger(width)||!Number.isInteger(height)||x<0||y<0||width<=0||height<=0||x+width>imageData.width||y+height>imageData.height)throw new RangeError("Crop rectangle is outside source image.");const out=new ImageData(width,height);for(let row=0;row<height;row++){const src=((y+row)*imageData.width+x)*4,dst=row*width*4;out.data.set(imageData.data.subarray(src,src+width*4),dst);}return out;}
+ function pixelate(imageData,blockSize=12){valid(imageData);if(blockSize<2||blockSize>256)throw new RangeError("Block size must be between 2 and 256.");const d=imageData.data,w=imageData.width,h=imageData.height;for(let by=0;by<h;by+=blockSize)for(let bx=0;bx<w;bx+=blockSize){const ey=Math.min(by+blockSize,h),ex=Math.min(bx+blockSize,w),sum=[0,0,0];let count=0;for(let y=by;y<ey;y++)for(let x=bx;x<ex;x++){const i=(y*w+x)*4;for(let c=0;c<3;c++)sum[c]+=d[i+c];count++;}const avg=sum.map(v=>Math.floor(v/count));for(let y=by;y<ey;y++)for(let x=bx;x<ex;x++){const i=(y*w+x)*4;d[i]=avg[0];d[i+1]=avg[1];d[i+2]=avg[2];}}return imageData;}
+ function blur(imageData,radius=4){valid(imageData);if(radius<1||radius>32)throw new RangeError("Blur radius must be between 1 and 32.");const {width:w,height:h}=imageData,d=imageData.data,temp=new Uint8ClampedArray(d.length);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const left=Math.max(0,x-radius),right=Math.min(w-1,x+radius),count=right-left+1,i=(y*w+x)*4;for(let c=0;c<3;c++){let sum=0;for(let sx=left;sx<=right;sx++)sum+=d[(y*w+sx)*4+c];temp[i+c]=Math.floor(sum/count);}temp[i+3]=d[i+3];}
+ for(let y=0;y<h;y++){const top=Math.max(0,y-radius),bottom=Math.min(h-1,y+radius),count=bottom-top+1;for(let x=0;x<w;x++){const i=(y*w+x)*4;for(let c=0;c<3;c++){let sum=0;for(let sy=top;sy<=bottom;sy++)sum+=temp[(sy*w+x)*4+c];d[i+c]=Math.floor(sum/count);}}}return imageData;}
+ return {crop,pixelate,blur,valid,MAX_IMAGE_BYTES};
+})();
